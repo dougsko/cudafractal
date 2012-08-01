@@ -51,7 +51,7 @@ julia(int x, int y)
 }
 
 __global__ void 
-kernel(unsigned int *ptr)
+kernel(unsigned char *ptr)
 {
     int x = blockIdx.x;
     int y = blockIdx.y;
@@ -67,8 +67,8 @@ kernel(unsigned int *ptr)
 int
 main(void)
 {
-    unsigned int *dev_bitmap;
-    unsigned int bitmap[4000];
+    unsigned char *dev_bitmap;
+    unsigned char bitmap[4000];
 
     int i;
     for( i = 0; i <= DIM*4; i++)
