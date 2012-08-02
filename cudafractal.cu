@@ -1,27 +1,12 @@
 #include <cuda.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <gd.h>
+#include "cpu_bitmap.h"
+#include "book.h"
+#include "png_helper.h"
 
 #define DIM 1000
 
-int
-makePNG(char *imgData)
-{
-    gdImagePtr image;
-    FILE *out;
-    int color;
-
-    image = gdImageCreate(DIM, DIM);
-    color = gdImageColorAllocate(image, 0, 0, 0); // R, G, B
-    gdImageSetPixel(image, 0, 0, color);
-    out = fopen("foo.png", "wb");
-    gdImagePng(image, out);
-    fclose(out);
-    gdImageDestroy(image);
-
-    return 0;
-}
 
 struct 
 cuComplex
@@ -87,26 +72,17 @@ int
 main(void)
 {
     unsigned char *dev_bitmap;
-    unsigned char bitmap[4000];
+    CPUBitmap bitmap(DIM, DIM);
 
-    int i;
-    for( i = 0; i <= DIM*4; i++)
-    {
-        bitmap[i] = 0;
-    }
 
-    cudaMalloc((void **) &dev_bitmap, DIM * DIM);
-
-    cudaMemcpy(dev_bitmap, bitmap, DIM * 4 * sizeof(int), cudaMemcpyHostToDevice);
+    cudaMalloc((void **) &dev_bitmap, bitmap.image_size());
 
     dim3 grid(DIM, DIM);
     kernel<<<grid, 1>>>(dev_bitmap);
 
-    cudaMemcpy(bitmap, dev_bitmap, DIM * 4 * sizeof(int), cudaMemcpyDeviceToHost);
-    for(i = 0; i <= 4000; i++)
-    {
-        printf("%d\n", bitmap[i]);
-    }
+    cudaMemcpy(bitmap.get_ptr(), dev_bitmap, bitmap.image_size(), cudaMemcpyDeviceToHost);
+
+//    bitmap.display_and_exit();
 
     cudaFree(dev_bitmap);
 
