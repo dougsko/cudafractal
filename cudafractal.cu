@@ -89,6 +89,11 @@ main(void)
 
     cudaMemcpy(bitmap.get_ptr(), dev_bitmap, bitmap.image_size(), cudaMemcpyDeviceToHost);
 
+    printf("Making PNG\n");
+    //printf("$s\n", bitmap.get_ptr());
+    makePNG(bitmap.get_ptr(), DIM_X, DIM_Y);
+    printf("Done\n");
+
     bitmap.display_and_exit();
 
     cudaFree(dev_bitmap);
